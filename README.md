@@ -1,2 +1,2 @@
-# My-Portfoilo
-Ali Usman Portfolio
+# My-Portfolio
+my portfolio

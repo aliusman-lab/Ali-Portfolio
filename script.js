@@ -327,4 +327,27 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // 6. Dark/Light Theme Toggle Handler
+    const themeToggleBtn = document.getElementById("themeToggleBtn");
+    const themeIcon = themeToggleBtn ? themeToggleBtn.querySelector(".theme-icon") : null;
+
+    // Check saved theme in localStorage
+    const savedTheme = localStorage.getItem("portfolio-theme");
+    if (savedTheme === "dark") {
+        document.body.classList.add("dark-theme");
+        if (themeIcon) themeIcon.textContent = "☀️";
+    } else {
+        document.body.classList.remove("dark-theme");
+        if (themeIcon) themeIcon.textContent = "🌙";
+    }
+
+    if (themeToggleBtn && themeIcon) {
+        themeToggleBtn.addEventListener("click", () => {
+            document.body.classList.toggle("dark-theme");
+            const isDark = document.body.classList.contains("dark-theme");
+            localStorage.setItem("portfolio-theme", isDark ? "dark" : "light");
+            themeIcon.textContent = isDark ? "☀️" : "🌙";
+        });
+    }
 });
