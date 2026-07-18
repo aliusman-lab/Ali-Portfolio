@@ -37,111 +37,97 @@ document.addEventListener("DOMContentLoaded", () => {
     const formStatus = document.getElementById("formStatus");
 
     if (contactFormEl && formStatus) {
-        contactFormEl.addEventListener("submit", (e) => {
-            e.preventDefault();
+contactFormEl.addEventListener("submit", (e) => {
+    e.preventDefault();
 
-            const nameInput = document.getElementById("cf-name");
-            const emailInput = document.getElementById("cf-email");
-            const subjectInput = document.getElementById("cf-subject");
-            const messageInput = document.getElementById("cf-message");
-            const submitBtn = contactFormEl.querySelector(".btn-submit");
+    const nameInput = document.getElementById("cf-name");
+    const emailInput = document.getElementById("cf-email");
+    const subjectInput = document.getElementById("cf-subject");
+    const messageInput = document.getElementById("cf-message");
+    const submitBtn = contactFormEl.querySelector(".btn-submit");
 
-            const name = nameInput.value.trim();
-            const email = emailInput.value.trim();
-            const subject = subjectInput.value.trim();
-            const message = messageInput.value.trim();
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+    const subject = subjectInput.value.trim();
+    const message = messageInput.value.trim();
 
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            if (name.length < 2) {
-                showStatus("Please enter a valid name (at least 2 characters).", "error");
-                nameInput.focus();
-                return;
-            }
+    if (name.length < 2) {
+        showStatus("Please enter a valid name (at least 2 characters).", "error");
+        nameInput.focus();
+        return;
+    }
 
-            if (!emailRegex.test(email)) {
-                showStatus("Please enter a valid email address.", "error");
-                emailInput.focus();
-                return;
-            }
+    if (!emailRegex.test(email)) {
+        showStatus("Please enter a valid email address.", "error");
+        emailInput.focus();
+        return;
+    }
 
-            if (subject.length < 4) {
-                showStatus("Please enter a subject (at least 4 characters).", "error");
-                subjectInput.focus();
-                return;
-            }
+    if (subject.length < 4) {
+        showStatus("Please enter a subject (at least 4 characters).", "error");
+        subjectInput.focus();
+        return;
+    }
 
-            if (message.length < 10) {
-                showStatus("Please write a slightly longer message (at least 10 characters).", "error");
-                messageInput.focus();
-                return;
-            }
+    if (message.length < 10) {
+        showStatus("Please write a slightly longer message (at least 10 characters).", "error");
+        messageInput.focus();
+        return;
+    }
 
-            showStatus("Sending message... Please wait.", "loading");
-            submitBtn.disabled = true;
-            submitBtn.textContent = "Sending...";
+    showStatus("Sending message... Please wait.", "loading");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending...";
 
-            const accessKey = "YOUR_ACCESS_KEY_HERE"; 
+    // Real Web3Forms access key — ab seedha yahan se fetch() tak jata hai
+    const accessKey = "47b3c087-1a6f-4381-a0a2-6f2436af66e2";
 
-            if (accessKey === "YOUR_ACCESS_KEY_HERE" || accessKey === "4259b19e-e3cf-42be-94d3-dfcfc34d8cc3") {
-                showStatus("Demo Mode: Message submitted successfully! (Please replace the Access Key in script.js to receive real emails).", "success");
-                contactFormEl.reset();
-                submitBtn.textContent = "Message Sent ✓";
-                submitBtn.style.backgroundColor = "#2ecc71";
-                
-                setTimeout(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = "Send Message ↗";
-                    submitBtn.style.backgroundColor = "";
-                    formStatus.style.display = "none";
-                }, 6000);
-                return;
-            }
+    const formData = {
+        access_key: accessKey,
+        name: name,
+        email: email,
+        subject: `Portfolio Contact: ${subject}`,
+        message: message
+    };
 
-            const formData = {
-                access_key: accessKey,
-                name: name,
-                email: email,
-                subject: `Portfolio Contact: ${subject}`,
-                message: message
-            };
+    fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(async (response) => {
+        let json = await response.json();
+        if (response.status == 200 && json.success) {
+            showStatus("Message sent successfully! I will get back to you shortly.", "success");
+            contactFormEl.reset();
+            submitBtn.textContent = "Message Sent ✓";
+            submitBtn.style.backgroundColor = "#2ecc71";
 
-            fetch("https://api.web3forms.com/submit", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json"
-                },
-                body: JSON.stringify(formData)
-            })
-            .then(async (response) => {
-                let json = await response.json();
-                if (response.status == 200 && json.success) {
-                    showStatus("Message sent successfully! I will get back to you shortly.", "success");
-                    contactFormEl.reset();
-                    submitBtn.textContent = "Message Sent ✓";
-                    submitBtn.style.backgroundColor = "#2ecc71";
-                    
-                    setTimeout(() => {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = "Send Message ↗";
-                        submitBtn.style.backgroundColor = "";
-                        formStatus.style.display = "none";
-                    }, 5000);
-                } else {
-                    console.log(response);
-                    showStatus(json.message || "Something went wrong. Please check back later.", "error");
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = "Send Message ↗";
-                }
-            })
-            .catch((error) => {
-                console.log(error);
-                showStatus("Network error: Could not reach the email server.", "error");
+            setTimeout(() => {
                 submitBtn.disabled = false;
                 submitBtn.textContent = "Send Message ↗";
-            });
-        });
+                submitBtn.style.backgroundColor = "";
+                formStatus.style.display = "none";
+            }, 5000);
+        } else {
+            console.log(response);
+            showStatus(json.message || "Something went wrong. Please check back later.", "error");
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Send Message ↗";
+        }
+    })
+    .catch((error) => {
+        console.log(error);
+        showStatus("Network error: Could not reach the email server.", "error");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Send Message ↗";
+    });
+});
     }
 
     function showStatus(text, type) {
@@ -351,3 +337,5 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
+
